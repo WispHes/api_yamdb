@@ -1,7 +1,18 @@
+# ЯП - Спринт 10 - Проект YaMDb (групповой проект). Python-разработчик (бекенд) (Яндекс.Практикум)
+### Описание
+Проект YaMDb собирает отзывы пользователей на произведения. Сами произведения в YaMDb не хранятся, здесь нельзя посмотреть фильм или послушать музыку.
+
 ### Технологии
-Python 3.7, Django 2.2, DRF, JWT + Djoser
+
+* Python 3.7
+
+* Django 2.2
+
+* DRF 
+
+* JWT + Djoser
 ### Запуск проекта в dev-режиме
-- Клонировать репозиторий и перейти в него в командной строке.
+- Клонируйте репозиторий и перейдите в него в командной строке.
 ```bash
 git clone https://github.com/WispHes/api_final_yatube.git
 ```
@@ -10,14 +21,21 @@ git clone https://github.com/WispHes/api_final_yatube.git
 py -3.7 -m venv venv
 ```
 - Активируйте виртуальное окружение :
+
+ для windows-систем:
 ```bash
-venv/Scripts/activate
+source venv/Scripts/activate
+```
+
+для *nix-систем:     
+```bash
+source venv/bin/activate
 ```
 - Далее установите зависимости из файла requirements.txt:
 ```bash
 pip install -r requirements.txt
 ```
-- Перейдите в дерикторию yatube_api и выполните миграции:
+- Перейдите в директорию yatube_api и выполните миграции:
 ```bash
 python manage.py migrate
 ```
@@ -29,3 +47,45 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+### Документация
+Документация будет доступна после запуска проекта по адресу /redoc/.
+
+### Примеры некоторых запросов API
+Регистрация пользователя:
+```
+POST /api/v1/auth/signup/
+```
+Получение данных своей учетной записи:
+```
+GET /api/v1/users/me/
+```
+Получение списка всех отзывов:
+```
+GET /api/v1/titles/{title_id}/reviews/
+```
+Добавление комментария к отзыву:
+```
+POST /api/v1/titles/{title_id}/reviews/{review_id}/comments/
+```
+Добавление новой категории:
+```
+POST /api/v1/categories/
+```
+Удаление жанра:
+```
+DELETE /api/v1/genres/{slug}
+```
+Частичное обновление информации о произведении:
+```
+PATCH /api/v1/titles/{titles_id}
+```
+
+
+Полный список запросов API находятся в документации.
+
+### Авторы
+[Остапчук Дмитрий](https://github.com/WispHes) - управление пользователями: система регистрации и аутентификации пользователей, пользовательские роли и права доступа, работа с токеном, система подтверждения через e-mail. Тимлид.
+
+[Голубцов Михаил](https://github.com/MikhailEGolubtsov) - модели, view и эндпойнты для произведений, категорий, жанров, реализация импорта данных из csv файлов.
+
+[Громова Наталия](https://github.com/Nataliya-miyau) - модели, view и эндпойнты для отзывов и комментариев. Рейтинг произведений.
