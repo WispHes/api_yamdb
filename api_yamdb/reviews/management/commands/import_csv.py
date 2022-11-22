@@ -10,8 +10,8 @@ FILES = {
     'Title': 'titles.csv',
     'GenreTitle': 'genre_title.csv',
     'User': 'users.csv',
-    # 'Review': 'review.csv',
-    # 'Comment': 'comments.csv'
+    'Review': 'review.csv',
+    'Comment': 'comments.csv'
 }
 
 
