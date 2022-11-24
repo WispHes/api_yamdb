@@ -108,7 +108,7 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200, verbose_name='Наименование')
-    year = models.IntegerField(
+    year = models.SmallIntegerField(
         verbose_name='Дата выхода',
         validators=[validate_year]
     )
@@ -121,13 +121,7 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
-        verbose_name='Жанр',
-        through='GenreTitle'
-    )
-    rating = models.FloatField(
-        verbose_name='Рейтинг',
-        null=True,
-        default=None
+        verbose_name='Жанр'
     )
     description = models.TextField(
         verbose_name='Описание',
@@ -142,24 +136,6 @@ class Title(models.Model):
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         ordering = ['name']
-
-
-class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title,
-        verbose_name='Произведение',
-        on_delete=models.CASCADE)
-    genre = models.ForeignKey(
-        Genre,
-        verbose_name='Жанр',
-        on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.title}, жанр - {self.genre}'
-
-    class Meta:
-        verbose_name = 'Произведение и жанр'
-        verbose_name_plural = 'Произведения и жанры'
 
 
 class Review(models.Model):
