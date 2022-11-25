@@ -1,63 +1,8 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from .validators import validate_username, validate_year
 
-
-class User(AbstractUser):
-    USER = 'user'
-    MODERATOR = 'moderator'
-    ADMIN = 'admin'
-
-    ROLE = (
-        (USER, USER),
-        (MODERATOR, MODERATOR),
-        (ADMIN, ADMIN),
-    )
-
-    username = models.CharField(
-        validators=(validate_username,),
-        max_length=150,
-        unique=True,
-    )
-    email = models.EmailField(
-        max_length=254,
-        unique=True,
-    )
-    first_name = models.CharField(
-        'имя',
-        max_length=150,
-        blank=True
-    )
-    bio = models.TextField(
-        'Биография',
-        blank=True,
-    )
-    role = models.CharField(
-        'Роль',
-        max_length=100,
-        choices=ROLE,
-        default=USER,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ('id',)
-
-    def __str__(self):
-        return self.username
-
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN
-
-    @property
-    def is_moderator(self):
-        return self.role == self.MODERATOR
-
-    @property
-    def is_user(self):
-        return self.role == self.USER
+from .validators import validate_year
+from user.models import User
 
 
 class Genre(models.Model):
