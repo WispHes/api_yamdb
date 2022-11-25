@@ -7,9 +7,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import permissions, status, viewsets
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.filters import SearchFilter
+from rest_framework.decorators import api_view, permission_classes
 
 from reviews.models import User, Genre, Category, Title, Review
 from .permissions import (AdminOnly, IsAdminUserOrReadOnly,
@@ -23,10 +23,10 @@ from .mixins import ListCreateDestroyViewSet
 from .filters import TitlesFilter
 
 
-class APISignup(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request):
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny, ])
+def sign_up(request):
+    if request.method == 'POST':
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user, _ = User.objects.get_or_create(**serializer.validated_data)
@@ -40,15 +40,14 @@ class APISignup(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class APIGetToken(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request):
-        serializer = GetTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        token = AccessToken.for_user(self.request.user)
-        return Response({'token': str(token)},
-                        status=status.HTTP_201_CREATED)
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny, ])
+def get_token(request):
+    serializer = GetTokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    token = AccessToken.for_user(request.user)
+    return Response({'token': str(token)},
+                    status=status.HTTP_201_CREATED)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -97,7 +96,6 @@ class CategoryViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
     queryset = Title.objects.all().annotate(
         Avg('reviews__score')
     ).order_by('name')
