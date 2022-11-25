@@ -14,7 +14,7 @@ from rest_framework.filters import SearchFilter
 from reviews.models import User, Genre, Category, Title, Review
 from .permissions import (AdminOnly, IsAdminUserOrReadOnly,
                           AllPermission)
-from .serializers import (UsersSerializer, NotAdminSerializer,
+from .serializers import (UsersSerializer,
                           GetTokenSerializer, SignUpSerializer,
                           TitleSerializer, CategorySerializer,
                           GenreSerializer, ReadOnlyTitleSerializer,
@@ -46,20 +46,9 @@ class APIGetToken(APIView):
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = get_object_or_404(
-            User,
-            username=serializer.validated_data['username']
-        )
-        if default_token_generator.check_token(
-            user,
-            serializer.validated_data['confirmation_code']
-        ):
-            token = AccessToken.for_user(user)
-            return Response({'token': str(token)},
-                            status=status.HTTP_201_CREATED)
-        return Response(
-            {'confirmation_code': 'Неверный код подтверждения!'},
-            status=status.HTTP_400_BAD_REQUEST)
+        token = AccessToken.for_user(self.request.user)
+        return Response({'token': str(token)},
+                        status=status.HTTP_201_CREATED)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -75,22 +64,17 @@ class UsersViewSet(viewsets.ModelViewSet):
         detail=False,
         permission_classes=(IsAuthenticated,),
         url_path='me')
-    def get_users(self, request):
-        serializer = UsersSerializer(request.user)
-        user = request.user
-        data = request.data
-        if request.method == 'PATCH':
-            if request.user.is_admin:
-                serializer = UsersSerializer(
-                    user, data, partial=True
-                )
-            else:
-                serializer = NotAdminSerializer(
-                    user, data, partial=True
-                )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+    def get_me(self, request):
+        if request.method == 'GET':
+            serializer = self.get_serializer(request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = self.get_serializer(
+            request.user,
+            data=request.data,
+            partial=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

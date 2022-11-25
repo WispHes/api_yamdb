@@ -10,7 +10,7 @@ def validate_username(value):
             ('Использовать имя "me" в качестве username запрещено.'),
             params={'value': value},
         )
-    if re.search(r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', value) is None:
+    if re.findall(r'[^\w\-@.,+]', value) is None:
         raise ValidationError(
             (f'данные символы <{value}> запрещены.'),
             params={'value': value},

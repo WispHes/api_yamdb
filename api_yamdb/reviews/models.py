@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-
 from .validators import validate_username, validate_year
 
 
@@ -10,32 +9,23 @@ class User(AbstractUser):
     MODERATOR = 'moderator'
     ADMIN = 'admin'
 
-    ROLE = {
+    ROLE = (
         (USER, USER),
         (MODERATOR, MODERATOR),
         (ADMIN, ADMIN),
-    }
+    )
 
     username = models.CharField(
         validators=(validate_username,),
         max_length=150,
         unique=True,
-        blank=False,
-        null=False
     )
     email = models.EmailField(
         max_length=254,
         unique=True,
-        blank=False,
-        null=False
     )
     first_name = models.CharField(
         'имя',
-        max_length=150,
-        blank=True
-    )
-    last_name = models.CharField(
-        'фамилия',
         max_length=150,
         blank=True
     )
@@ -50,12 +40,6 @@ class User(AbstractUser):
         default=USER,
         blank=True,
     )
-    confirmation_code = models.CharField(
-        'код подтверждения',
-        max_length=255,
-        null=True,
-        blank=False,
-    )
 
     class Meta:
         ordering = ('id',)
@@ -65,15 +49,15 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == 'admin'
+        return self.role == self.ADMIN
 
     @property
     def is_moderator(self):
-        return self.role == 'moderator'
+        return self.role == self.MODERATOR
 
     @property
     def is_user(self):
-        return self.role == 'user'
+        return self.role == self.USER
 
 
 class Genre(models.Model):
@@ -108,7 +92,7 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200, verbose_name='Наименование')
-    year = models.IntegerField(
+    year = models.SmallIntegerField(
         verbose_name='Дата выхода',
         validators=[validate_year]
     )
@@ -122,12 +106,6 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         verbose_name='Жанр',
-        through='GenreTitle'
-    )
-    rating = models.FloatField(
-        verbose_name='Рейтинг',
-        null=True,
-        default=None
     )
     description = models.TextField(
         verbose_name='Описание',
@@ -142,24 +120,6 @@ class Title(models.Model):
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         ordering = ['name']
-
-
-class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title,
-        verbose_name='Произведение',
-        on_delete=models.CASCADE)
-    genre = models.ForeignKey(
-        Genre,
-        verbose_name='Жанр',
-        on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.title}, жанр - {self.genre}'
-
-    class Meta:
-        verbose_name = 'Произведение и жанр'
-        verbose_name_plural = 'Произведения и жанры'
 
 
 class Review(models.Model):

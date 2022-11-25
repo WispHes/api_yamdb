@@ -1,6 +1,7 @@
 from django.forms import ValidationError
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
 
 from reviews.models import User, Category, Genre, Title, Comment, Review
 
@@ -11,15 +12,6 @@ class UsersSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name',
             'last_name', 'bio', 'role')
-
-
-class NotAdminSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username', 'email', 'first_name',
-            'last_name', 'bio', 'role')
-        read_only_fields = ('role',)
 
 
 class GetTokenSerializer(serializers.ModelSerializer):
@@ -34,6 +26,16 @@ class GetTokenSerializer(serializers.ModelSerializer):
             'username',
             'confirmation_code'
         )
+
+    def validate(self, data):
+        user = get_object_or_404(User, username=data['username'])
+        if not default_token_generator.check_token(
+            user,
+            data['confirmation_code']
+        ):
+            raise serializers.ValidationError(
+                {'confirmation_code': 'Неверный код подтверждения'})
+        return data
 
 
 class SignUpSerializer(serializers.ModelSerializer):
