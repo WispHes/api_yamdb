@@ -5,12 +5,19 @@ from .validators import validate_year
 from user.models import User
 
 
-class Genre(models.Model):
+class BaseModel(models.Model):
+
     name = models.CharField(max_length=300, verbose_name='Наименование')
-    slug = models.SlugField(unique=True, max_length=50, verbose_name='Жанр')
+    slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        abstract=True
+
+
+class Genre(BaseModel):
 
     class Meta:
         verbose_name = 'Жанр'
@@ -18,16 +25,7 @@ class Genre(models.Model):
         ordering = ['name']
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=300, verbose_name='Наименование')
-    slug = models.SlugField(
-        unique=True,
-        max_length=50,
-        verbose_name='Категория'
-    )
-
-    def __str__(self):
-        return self.name
+class Category(BaseModel):
 
     class Meta:
         verbose_name = 'Категория'
@@ -37,7 +35,7 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200, verbose_name='Наименование')
-    year = models.SmallIntegerField(
+    year = models.PositiveSmallIntegerField(
         verbose_name='Дата выхода',
         validators=[validate_year]
     )
