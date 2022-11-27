@@ -8,14 +8,14 @@ from reviews.models import Category, Genre, Title, Review, Comment
 from user.models import User
 
 FILES = [
-    (User, 'users.csv'),
-    (Category, 'category.csv'),
-    (Genre, 'genre.csv'),
-    (Title, 'titles.csv'),
+    (User, 'users.csv', 'users'),
+    (Category, 'category.csv', 'category'),
+    (Genre, 'genre.csv', 'genre'),
+    (Title, 'titles.csv', 'titles'),
     (apps.get_model(app_label='reviews', model_name='title_genre'),
-        'genre_title.csv'),
-    (Review, 'review.csv'),
-    (Comment, 'comments.csv'),
+        'genre_title.csv', 'genre_title'),
+    (Review, 'review.csv', 'review'),
+    (Comment, 'comments.csv', 'comments'),
 ]
 class Command(BaseCommand):
     help = 'adds data from csv files to the database'
@@ -74,33 +74,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         files = []
         load_all = True
-        if options['users']:
-            files.append((User, 'users.csv'))
-            load_all = False
-        if options['category']:
-            files.append((Category, 'category.csv'))
-            load_all = False
-        if options['genre']:
-            files.append((Genre, 'genre.csv'))
-            load_all = False
-        if options['titles']:
-            files.append((Title, 'titles.csv'))
-            load_all = False
-        if options['genre_title']:
-            files.append(
-                (apps.get_model(app_label='reviews', model_name='title_genre'),
-            'genre_title.csv'))
-            load_all = False
-        if options['review']:
-            files.append((Review, 'review.csv'))
-            load_all = False
-        if options['comments']:
-            files.append((Comment, 'comments.csv'))
-            load_all = False
+        for model, file_name, option in FILES:
+            if options[option]:
+                files.append((model, file_name, option))
+                load_all = False
         if load_all == True:
             files = FILES
         print(files)
-        for model, file_name in files:
+        for model, file_name, option in files:
             try:
                 with open(
                     f'{settings.BASE_DIR}/static/data/{file_name}',
