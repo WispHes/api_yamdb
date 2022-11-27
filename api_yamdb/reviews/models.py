@@ -5,12 +5,19 @@ from .validators import validate_year
 from user.models import User
 
 
-class Genre(models.Model):
+class BaseModel(models.Model):
+
     name = models.CharField(max_length=300, verbose_name='Наименование')
-    slug = models.SlugField(unique=True, max_length=50, verbose_name='Жанр')
+    slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        abstract = True
+
+
+class Genre(BaseModel):
 
     class Meta:
         verbose_name = 'Жанр'
@@ -18,16 +25,7 @@ class Genre(models.Model):
         ordering = ['name']
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=300, verbose_name='Наименование')
-    slug = models.SlugField(
-        unique=True,
-        max_length=50,
-        verbose_name='Категория'
-    )
-
-    def __str__(self):
-        return self.name
+class Category(BaseModel):
 
     class Meta:
         verbose_name = 'Категория'
@@ -37,7 +35,7 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200, verbose_name='Наименование')
-    year = models.SmallIntegerField(
+    year = models.PositiveSmallIntegerField(
         verbose_name='Дата выхода',
         validators=[validate_year]
     )
@@ -67,33 +65,42 @@ class Title(models.Model):
         ordering = ['name']
 
 
-class Review(models.Model):
+class ReviewAndCommentBasicModel(models.Model):
+    text = models.CharField(
+        max_length=1000,
+        verbose_name='Текст'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.text
+
+    class Meta:
+        abstract = True
+
+
+class Review(ReviewAndCommentBasicModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Произведение'
     )
-    text = models.CharField(
-        max_length=1000,
-        verbose_name='Текст отзыва'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Автор'
-    )
+
     score = models.PositiveSmallIntegerField(
         verbose_name='Оценка',
         validators=(
             MinValueValidator(1),
             MaxValueValidator(10)
         ),
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='Дата публикации',
-        auto_now_add=True
     )
 
     class Meta:
@@ -106,37 +113,16 @@ class Review(models.Model):
             )]
         ordering = ('pub_date',)
 
-    def __str__(self):
-        return self.text
 
-
-class Comment(models.Model):
+class Comment(ReviewAndCommentBasicModel):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='Отзыв'
     )
-    text = models.CharField(
-        verbose_name='Текст комментария',
-        max_length=1000
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Автор'
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='Дата публикации',
-        auto_now_add=True,
-        db_index=True
-    )
 
     class Meta:
         ordering = ('review', 'author')
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарий'
-
-    def __str__(self):
-        return self.text

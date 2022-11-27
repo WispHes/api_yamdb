@@ -16,8 +16,6 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class GetTokenSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-        required=True)
     confirmation_code = serializers.CharField(
         required=True)
 
@@ -104,11 +102,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-
-    def validate_score(self, value):
-        if 0 > value > 10:
-            raise serializers.ValidationError('Оценка по 10-бальной шкале!')
-        return value
 
     def validate(self, data):
         request = self.context['request']

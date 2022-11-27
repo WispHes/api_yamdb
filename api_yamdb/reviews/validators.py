@@ -1,5 +1,3 @@
-import re
-
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -8,11 +6,6 @@ def validate_username(value):
     if value.lower() == 'me':
         raise ValidationError(
             ('Использовать имя "me" в качестве username запрещено.'),
-            params={'value': value},
-        )
-    if re.findall(r'[^\w\-@.,+]', value) is None:
-        raise ValidationError(
-            (f'данные символы <{value}> запрещены.'),
             params={'value': value},
         )
 

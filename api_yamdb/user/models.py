@@ -1,12 +1,10 @@
-from dataclasses import dataclass
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from reviews.validators import validate_username
 
 
-@dataclass
 class UsersRole:
     USER = 'user'
     MODERATOR = 'moderator'
@@ -23,7 +21,7 @@ ROLE = (
 class User(AbstractUser):
 
     username = models.CharField(
-        validators=(validate_username,),
+        validators=(validate_username, UnicodeUsernameValidator),
         max_length=150,
         unique=True,
     )

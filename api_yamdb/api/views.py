@@ -45,7 +45,11 @@ def sign_up(request):
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    token = AccessToken.for_user(request.user)
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data.get('username')
+    )
+    token = AccessToken.for_user(user)
     return Response({'token': str(token)},
                     status=status.HTTP_201_CREATED)
 
@@ -66,14 +70,14 @@ class UsersViewSet(viewsets.ModelViewSet):
     def get_me(self, request):
         if request.method == 'GET':
             serializer = self.get_serializer(request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = self.get_serializer(
-            request.user,
-            data=request.data,
-            partial=True,
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save(role=request.user.role, partial=True)
+        else:
+            serializer = self.get_serializer(
+                request.user,
+                data=request.data,
+                partial=True,
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
