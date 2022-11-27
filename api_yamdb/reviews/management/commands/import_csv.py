@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 load_all = False
         if load_all is True:
             files = FILES
-        print(files)
+        self.stdout.write(self.style.SUCCESS(files))
         for model, file_name, option in files:
             try:
                 with open(
@@ -93,4 +93,6 @@ class Command(BaseCommand):
                     for row in file_reader:
                         model.objects.get_or_create(**row)
             except IOError:
-                print('Could not read file:', file_name)
+                self.stdout.write(
+                    self.style.WARNING(f'Could not read file: {file_name}')
+                )
