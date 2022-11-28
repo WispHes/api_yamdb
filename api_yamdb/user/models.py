@@ -5,20 +5,16 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from reviews.validators import validate_username
 
 
-class UsersRole:
+class User(AbstractUser):
     USER = 'user'
     MODERATOR = 'moderator'
     ADMIN = 'admin'
 
-
-ROLE = (
-    (UsersRole.USER, 'Пользователь'),
-    (UsersRole.MODERATOR, 'Модератор'),
-    (UsersRole.ADMIN, 'Администратор'),
-)
-
-
-class User(AbstractUser):
+    ROLE = (
+        (USER, 'Пользователь'),
+        (MODERATOR, 'Модератор'),
+        (ADMIN, 'Администратор'),
+    )
 
     username = models.CharField(
         validators=(validate_username, UnicodeUsernameValidator),
@@ -42,7 +38,7 @@ class User(AbstractUser):
         'Роль',
         max_length=100,
         choices=ROLE,
-        default=UsersRole.USER,
+        default=USER,
         blank=True,
     )
 
@@ -54,12 +50,8 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == UsersRole.ADMIN
+        return self.role == self.ADMIN or self.is_superuser
 
     @property
     def is_moderator(self):
-        return self.role == UsersRole.MODERATOR
-
-    @property
-    def is_user(self):
-        return self.role == UsersRole.USER
+        return self.role == self.MODERATOR or self.is_staff

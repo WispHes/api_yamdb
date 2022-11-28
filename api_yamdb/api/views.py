@@ -45,11 +45,7 @@ def sign_up(request):
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data.get('username')
-    )
-    token = AccessToken.for_user(user)
+    token = AccessToken.for_user()
     return Response({'token': str(token)},
                     status=status.HTTP_201_CREATED)
 
@@ -68,9 +64,8 @@ class UsersViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
         url_path='me')
     def get_me(self, request):
-        if request.method == 'GET':
-            serializer = self.get_serializer(request.user)
-        else:
+        serializer = self.get_serializer(request.user)
+        if request.method == 'PATCH':
             serializer = self.get_serializer(
                 request.user,
                 data=request.data,
