@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 
+
 from reviews.models import Category, Genre, Title, Comment, Review
 from user.models import User
 
@@ -23,11 +24,12 @@ class GetTokenSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'username',
-            'confirmation_code'
+            'confirmation_code',
         )
 
     def validate(self, data):
         user = get_object_or_404(User, username=data['username'])
+        data['user'] = user
         if not default_token_generator.check_token(
             user,
             data['confirmation_code']

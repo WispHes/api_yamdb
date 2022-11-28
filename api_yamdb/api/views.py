@@ -45,7 +45,7 @@ def sign_up(request):
 def get_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    token = AccessToken.for_user()
+    token = AccessToken.for_user(serializer.data.user)
     return Response({'token': str(token)},
                     status=status.HTTP_201_CREATED)
 
